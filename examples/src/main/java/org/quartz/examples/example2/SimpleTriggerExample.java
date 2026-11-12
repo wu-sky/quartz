@@ -1,20 +1,20 @@
-/* 
+/*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * Copyright IBM Corp. 2024, 2025
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
- * use this file except in compliance with the License. You may obtain a copy 
- * of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
  * under the License.
- * 
+ *
  */
- 
+
 package org.quartz.examples.example2;
 
 import static org.quartz.DateBuilder.futureDate;
@@ -38,7 +38,7 @@ import java.util.Date;
 
 /**
  * This Example will demonstrate all of the basics of scheduling capabilities of Quartz using Simple Triggers.
- * 
+ *
  * @author Bill Kratzer
  */
 public class SimpleTriggerExample {
@@ -48,32 +48,21 @@ public class SimpleTriggerExample {
 
     log.info("------- Initializing -------------------");
 
-    // First we must get a reference to a scheduler
     SchedulerFactory sf = new StdSchedulerFactory();
     Scheduler sched = sf.getScheduler();
 
     log.info("------- Initialization Complete --------");
-
     log.info("------- Scheduling Jobs ----------------");
-
-    // jobs can be scheduled before sched.start() has been called
-
-    // get a "nice round" time a few seconds in the future...
     Date startTime = DateBuilder.nextGivenSecondDate(null, 15);
-
-    // job1 will only fire once at date/time "ts"
     JobDetail job = newJob(SimpleJob.class).withIdentity("job1", "group1").build();
-
     SimpleTrigger trigger = (SimpleTrigger) newTrigger().withIdentity("trigger1", "group1").startAt(startTime).build();
 
-    // schedule it to run!
     Date ft = sched.scheduleJob(job, trigger);
     log.info(job.getKey() + " will run at: " + ft + " and repeat: " + trigger.getRepeatCount() + " times, every "
              + trigger.getRepeatInterval() / 1000 + " seconds");
 
     // job2 will only fire once at date/time "ts"
     job = newJob(SimpleJob.class).withIdentity("job2", "group1").build();
-
     trigger = (SimpleTrigger) newTrigger().withIdentity("trigger2", "group1").startAt(startTime).build();
 
     ft = sched.scheduleJob(job, trigger);
@@ -124,7 +113,6 @@ public class SimpleTriggerExample {
 
     // job6 will run indefinitely, every 40 seconds
     job = newJob(SimpleJob.class).withIdentity("job6", "group1").build();
-
     trigger = newTrigger().withIdentity("trigger6", "group1").startAt(startTime)
         .withSchedule(simpleSchedule().withIntervalInSeconds(40).repeatForever()).build();
 
@@ -133,11 +121,7 @@ public class SimpleTriggerExample {
              + trigger.getRepeatInterval() / 1000 + " seconds");
 
     log.info("------- Starting Scheduler ----------------");
-
-    // All of the jobs have been added to the scheduler, but none of the jobs
-    // will run until the scheduler has been started
     sched.start();
-
     log.info("------- Started Scheduler -----------------");
 
     // jobs can also be scheduled after start() has been called...
@@ -153,21 +137,11 @@ public class SimpleTriggerExample {
 
     // jobs can be fired directly... (rather than waiting for a trigger)
     job = newJob(SimpleJob.class).withIdentity("job8", "group1").storeDurably().build();
-
-    sched.addJob(job, true);
-
-    log.info("'Manually' triggering job8...");
+    sched.addJob(job, true); log.info("'Manually' triggering job8...");
     sched.triggerJob(jobKey("job8", "group1"));
-
     log.info("------- Waiting 30 seconds... --------------");
-
-    try {
-      // wait 33 seconds to show jobs
-      Thread.sleep(30L * 1000L);
-      // executing...
-    } catch (Exception e) {
-      //
-    }
+    try { Thread.sleep(30L * 1000L); }
+    catch (Exception e) { }
 
     // jobs can be re-scheduled...
     // job 7 will run immediately and repeat 10 times for every second
@@ -177,24 +151,14 @@ public class SimpleTriggerExample {
 
     ft = sched.rescheduleJob(trigger.getKey(), trigger);
     log.info("job7 rescheduled to run at: " + ft);
-
     log.info("------- Waiting five minutes... ------------");
-    try {
-      // wait five minutes to show jobs
-      Thread.sleep(300L * 1000L);
-      // executing...
-    } catch (Exception e) {
-      //
-    }
-
+    try { Thread.sleep(300L * 1000L); }
+    catch (Exception e) { }
     log.info("------- Shutting Down ---------------------");
-
     sched.shutdown(true);
-
     log.info("------- Shutdown Complete -----------------");
 
-    // display some stats about the schedule that just ran
-    SchedulerMetaData metaData = sched.getMetaData();
+    SchedulerMetaData metaData = sched.getMetaData();   // display some stats about the schedule that just ran
     log.info("Executed " + metaData.getNumberOfJobsExecuted() + " jobs.");
 
   }
